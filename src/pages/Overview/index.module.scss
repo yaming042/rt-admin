@@ -1,0 +1,39 @@
+.container{
+    position: relative;
+
+    .header{
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        letter-spacing: 2px;
+
+        .hello{
+            font-weight: bold;
+            font-size: 2rem;
+        }
+
+        .time{
+            position: relative;
+
+            span{
+                font-size: 2rem;
+                font-weight: bold;
+                margin: 0 4px;
+            }
+        }
+    }
+
+    .content{
+        padding: 24px;
+        text-align: center;
+
+        h2{
+            margin-bottom: 24px;
+        }
+
+        p{
+            margin: 12px 0;
+        }
+    }
+}

@@ -1,0 +1,116 @@
+.menu-container{
+    position: relative;
+    padding: 0 12px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+
+    .menu-group{
+        position: relative;
+        margin: 12px 0;
+
+        .menu-title{
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 0;
+
+            .label{
+                position: relative;
+                font-weight: bold;
+            }
+
+            .opt{
+                position: relative;
+            }
+        }
+
+        .menu-list{
+            position: relative;
+
+            .menu-item{
+                position: relative;
+                padding: 8px 12px;
+                cursor: pointer;
+                border-radius: 6px;
+                font-size: 14px;
+                margin: 2px 0;
+
+                &:hover:not(:global(.active)) {
+                    background-color: #0AC266;
+
+                    a{
+                        color: #fff;
+
+                        svg path{
+                            fill: #fff;
+                        }
+                    }
+                }
+                &:global(.active){
+                    background-color: #0AC266;
+
+                    a{
+                        color: #fff;
+
+                        svg path{
+                            fill: #fff;
+                        }
+                    }
+                }
+
+                a{
+                    color: #333;
+                    display: flex;
+                    align-items: center;
+                    width: 100%;
+
+                    &>svg{
+                        width: 18px;
+                        height: 18px;
+                        margin-right: 4px;
+                    }
+
+                    &:global(.favorites), &:global(.scratch){
+                        svg{
+                            width: 16px;
+                            margin-right: 6px;
+                        }
+                    }
+                }
+
+                .icon{
+                    position: relative;
+                }
+
+                .name{
+                    position: relative;
+                }
+
+                .opt{
+                    position: relative;
+                }
+            }
+        }
+
+        &.menu-group-grow{
+            flex-grow: 1;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+
+            .menu-list{
+                display: flex;
+                flex-direction: column;
+                flex-grow: 1;
+                overflow: auto;
+
+                &::-webkit-scrollbar{
+                    display: none;
+                }
+            }
+        }
+    }
+}
+

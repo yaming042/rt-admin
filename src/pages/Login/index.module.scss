@@ -1,0 +1,17 @@
+.container{
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    overflow: auto;
+    background-color: #0ac266;
+
+    .login-form{
+        position: relative;
+        display: flex;
+        padding: 24px;
+        background-color: #fff;
+        border-radius: 8px;
+    }
+}
