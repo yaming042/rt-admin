@@ -17,6 +17,34 @@ export const tree2array = (treeArray = [], parentId = null) => {
 
     return flatArray;
 };
+export const array2tree = (list = []) => {
+    let result = [],
+        itemMap = {};
+
+    for (const item of list) {
+        let id = item.id+'',
+            pid = item.pid;
+
+        if (!itemMap[id]) {
+            itemMap[id] = { children: [] }
+        }
+        itemMap[id] = {
+            ...item,
+            children: itemMap[id]['children']
+        }
+        const treeItem = itemMap[id];
+        if (pid === '0') {
+            result.push(treeItem);
+        } else {
+            if (!itemMap[pid]) {
+                itemMap[pid] = { children: [] }
+            }
+            itemMap[pid].children.push(treeItem)
+        }
+    }
+
+    return result;
+};
 // 给路由增加 key
 export const mapMenuAddKey = (menus=[], parentKey='') => {
     return (menus || []).map((item, index) => {

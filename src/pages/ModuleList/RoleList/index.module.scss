@@ -1,0 +1,24 @@
+.container{
+    position: relative;
+
+    .role-container{
+        position: relative;
+
+        .title{
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .role-list{
+            position: relative;
+
+            .empty{
+                color: #ccc;
+                text-align: center;
+                margin-top: 24px;
+            }
+        }
+    }
+}

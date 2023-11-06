@@ -1,4 +1,4 @@
-import React, {useEffect, useState, Suspense} from 'react';
+import React, {useEffect, useState} from 'react';
 import { message } from 'antd';
 import { connect } from 'react-redux';
 import { BrowserRouter as Router, Redirect, useHistory } from 'react-router-dom';
@@ -34,10 +34,15 @@ const flatterRouter = (data=[]) => {
     return routers;
 };
 const ROUTE_CLASS_NAME = `route-container`;
+const getRouteClass = (className='') => {
+    let pathname = location.pathname.replace(/\//g, '').replace(/-/g, '');
+
+    return `${className} ${pathname}`;
+};
 
 // 路由拦截
 const PrivateRoute = (props) => {
-    const className = props.className || ROUTE_CLASS_NAME,
+    const className = getRouteClass(props.className || ROUTE_CLASS_NAME),
         hasLogin = Cookies.get('rt-admin'),
         purview = props.purview, // 权限列表
         routeAuth = props.auth || [],
@@ -119,7 +124,7 @@ function App(props) {
                                     path={item.url}
                                     when={p => false}
                                     cacheKey={item.cacheKey || ''}
-                                    className={item.routeClass || ROUTE_CLASS_NAME}
+                                    className={getRouteClass(item.routeClass || ROUTE_CLASS_NAME)}
                                     component={item.component}
                                 />
                             })

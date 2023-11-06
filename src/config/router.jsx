@@ -1,21 +1,22 @@
 // 这里没用React.lazy，是因为它没法配合vite的热加载动态更新组件，所以替换成 '@loadable/component'，它可以
 // import {lazy} from 'react';
-import { lazy } from '@loadable/component';
+import loadable from '@loadable/component';
+import Loading from '@/components/Loading';
 import * as URL from './url';
 import { mapMenuAddKey } from '@/utils';
 
 import TinyLayout from '@/layout/TinyLayout';
 
-const Login = lazy(() => import('@/pages/Login'));
-const NotFound = lazy(() => import('@/pages/NotFound'));
-const Forbidden = lazy(() => import('@/pages/Forbidden'));
+const Login = loadable(() => import('@/pages/Login'), { fallback: <Loading/> });
+const NotFound = loadable(() => import('@/pages/NotFound'), { fallback: <Loading/> });
+const Forbidden = loadable(() => import('@/pages/Forbidden'), { fallback: <Loading/> });
 
-const Overview = lazy(() => import('@/pages/Overview'));
+const Overview = loadable(() => import('@/pages/Overview'), { fallback: <Loading/> });
 
-const RoleList = lazy(() => import('@/pages/RoleList'));
-const UserList = lazy(() => import('@/pages/UserList'));
-const AuthList = lazy(() => import('@/pages/AuthList'));
-const Account = lazy(() => import('@/pages/Account'));
+const RoleList = loadable(() => import('@/pages/RoleList'), { fallback: <Loading/> });
+const UserList = loadable(() => import('@/pages/UserList'), { fallback: <Loading/> });
+const ModuleList = loadable(() => import('@/pages/ModuleList'), { fallback: <Loading/> });
+const Account = loadable(() => import('@/pages/Account'), { fallback: <Loading/> });
 
 
 /*
@@ -86,7 +87,7 @@ const moduleRouters = [
         url: URL.AUTH_LIST,
         icon: '',
         label: '权限列表',
-        component: AuthList,
+        component: ModuleList,
     },
     {
         key: 'sys',

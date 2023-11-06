@@ -7,7 +7,7 @@ export const OVERVIEW = `${BASEDIR}/overview`;
 
 export const USER_LIST = `${BASEDIR}/user-list`;
 export const ROLE_LIST = `${BASEDIR}/role-list`;
-export const AUTH_LIST = `${BASEDIR}/auth-list`;
+export const AUTH_LIST = `${BASEDIR}/module-list`;
 export const ACCOUNT = `${BASEDIR}/account`;
 
 export const TEST5 = `${BASEDIR}/test5`;

@@ -1,0 +1,82 @@
+.container{
+    width: 100%;
+
+    .tree{
+        padding: 12px 0;
+
+        :global .ant-tree-treenode{
+            height: 36px;
+            padding: 0;
+
+            .ant-tree-draggable-icon{
+                line-height: 36px;
+                cursor: pointer;
+            }
+            .ant-tree-switcher{
+                line-height: 36px;
+            }
+
+            .ant-tree-node-content-wrapper{
+                line-height: 36px;
+            }
+
+            &:hover:before {
+                bottom: 0;
+            }
+
+            .ant-tree-node-selected span[role='img']{
+                color: #fff;
+            }
+        }
+
+        :global .ant-tree-treenode-selected::before{
+            bottom: 0;
+        }
+
+        .custom-tree-wrap {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            .label {
+                position: relative;
+
+                .searching-span {
+                    color: #f50;
+                }
+            }
+
+            .opt {
+                position: relative;
+                opacity: 0;
+
+                &>span {
+                    margin: 0 6px;
+                    color: #32b071;
+                }
+            }
+
+            &:hover{
+                .opt{
+                    opacity: 1;
+                }
+            }
+        }
+    }
+}
+
+:global .site-tree-search-value {
+    color: #f50;
+}
+
+.rename{
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding-top: 12px;
+
+    span{
+        width: 90px;
+    }
+}

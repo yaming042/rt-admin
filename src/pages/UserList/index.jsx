@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
 import { Table, Modal, Button, Tag, Tooltip } from "antd";
 import FilterForm from "@/components/FilterForm";
-// import UserDetail from "./UserDetail";
+import UserDetail from "./UserDetail";
 import { DeleteOutlined, EditOutlined, PlusCircleOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import { paginationConfig, COLORS } from "@/config";
 import request from '@/utils/request';
 // import { QUERY_USER_LIST_PAGE, QUERY_ROLE_LIST } from '@/config/url';
 import styles from './index.module.scss';
+
+import rtDb from '@/../DB';
 
 export default () => {
     const initState = () => ({
@@ -119,7 +121,9 @@ export default () => {
         ])
     }
     // 获取用户列表 - 分页
-    const getUserPageList = (option={}) => {
+    const getUserPageList = async (option={}) => {
+        let userList = await rtDb.getUserList();
+        console.log(userList);
         setState(o => ({...o, total: 0, userList: []}))
     };
     // 获取角色列表
@@ -204,13 +208,13 @@ export default () => {
                 </div>
             </div>
 
-            {/* <UserDetail
+            <UserDetail
                 open={state.detailOpen}
                 roleList={state.roleList || []}
                 userInfo={state.currentItem || {}}
                 onCancel={onCancel}
                 onOk={onOk}
-            /> */}
+            />
 
             {contextHolder}
         </div>

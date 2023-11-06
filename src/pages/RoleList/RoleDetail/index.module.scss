@@ -1,0 +1,24 @@
+.dialog{
+    :global .ant-modal-body{
+        &>.ant-form{
+            margin-top: 24px;
+        }
+    }
+
+    .batch-import{
+        min-height: 240px;
+
+        a{
+            font-size: 12px;
+            margin-left: 12px;
+        }
+    }
+}
+
+.submit{
+    text-align: center;
+
+    button{
+        margin: 0 24px;
+    }
+}

@@ -1,0 +1,69 @@
+.container {
+    position: relative;
+    display: flex;
+    width: 100%;
+
+    .left{
+        position: relative;
+        display: flex;
+        width: 360px;
+        flex-shrink: 0;
+
+        :global .ant-card{
+            width: 100%;
+        }
+
+        .left-header {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 18px;
+
+            .title {
+                position: relative;
+                font-weight: 600;
+                font-size: 16px;
+            }
+
+            button {
+                position: relative;
+            }
+        }
+
+        .category-tree {
+            position: relative;
+            min-height: 240px;
+
+            .tree-skeleton {
+                position: absolute;
+                top: 56px;
+                left: 0;
+                width: 100%;
+            }
+        }
+    }
+
+    .right{
+        position: relative;
+        display: flex;
+        flex-grow: 1;
+        padding: 0 24px;
+
+        :global .ant-card{
+            width: 100%;
+        }
+
+        .empty-tips {
+            color: #ccc;
+        }
+
+        .form {
+            position: relative;
+        }
+    }
+}
+
+:global(.modulelist){
+    position: relative;
+}
