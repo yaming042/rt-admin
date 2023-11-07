@@ -87,8 +87,7 @@ export class RTAdmin extends Dexie {
             }).catch(e => {
                 reject({code: -1, data: null, message: e.message || '失败'});
             });
-        })
-        return this.role.delete(id);
+        });
     }
     getRoleInfo(id='') {
         return this.role.get(id);
@@ -130,31 +129,102 @@ export class RTAdmin extends Dexie {
 
     // 权限
     async addModule(options) {
-        let pid = options.pid,
+        let {roles=[], ...rest} = options,
+            pid = options.pid,
             order = await this.module.where({pid}).count(),
-            now = +new Date(),
-            created_at = now,
-            updated_at = now;
+            now = +new Date();
 
-        options = {...options, order, created_at, updated_at};
+        return new Promise((resolve, reject) => {
+            this.transaction('rw', 'module', 'role-module', async () => {
+                let moduleId = await this.module.add({...rest, order, created_at: now, updated_at: now});
 
-        return this.module.add(options);
+                let modulesData = (roles || []).map(i => ({moduleId, roleId: i}));
+                if(modulesData.length) {
+                    await this['role-module'].bulkAdd(modulesData);
+                }
+
+                return moduleId;
+            }).then((record) => {
+                resolve({code: 0, data: record, message: '成功'});
+            }).catch(e => {
+                reject({code: -1, data: null, message: e.message || '失败'});
+            });
+        });
     }
     async updateModule(options, id) {
-        return this.module.update(id, options);
+        let {roles=[], ...rest} = options,
+            now = +new Date();
+
+        return new Promise((resolve, reject) => {
+            this.transaction('rw', 'module', 'role-module', async () => {
+                await this.role.update(id, {...rest, updated_at: now});
+
+                let allIds = await this['role-module'].get(id).toArray(),
+                    needDeleteIds = allIds.filter(i => !roles.includes(i)),
+                    needAddIds = roles.filter(i => !allIds.includes(i));
+
+                if(needDeleteIds.length) {
+                    let rmIds = await this['role-module'].where(needDeleteIds.map(i => ({roleId: i}))).toArray()
+                    await this['role-module'].bulkDelete(rmIds.map(i => i.id));
+                }
+                if(needAddIds) {
+                    await this['role-module'].bulkAdd(needAddIds.map(i => ({moduleId: id, roleId: i})));
+                }
+
+                let record = await this.role.get(id);
+
+                return record;
+            }).then((record) => {
+                resolve({code: 0, data: record, message: '成功'});
+            }).catch(e => {
+                reject({code: -1, data: null, message: e.message || '失败'});
+            });
+        });
     }
     deleteModule(id) {
-        return this.module.delete(id);
+        // 需要删除 关联的角色
+        return new Promise((resolve, reject) => {
+            this.transaction('rw', 'module', 'role-module', async () => {
+                let roles = await this['role-module'].where({moduleId: id}).toArray(),
+                    rolesData = roles.map(i => i.id);
+
+                await this.module.delete(id);
+                await this['role-module'].bulkDelete(rolesData);
+
+                return id;
+            }).then((id) => {
+                resolve({code: 0, data: null, message: '成功'});
+            }).catch(e => {
+                reject({code: -1, data: null, message: e.message || '失败'});
+            });
+        });
     }
     getModuleInfo(id='') {
         return this.module.get(id);
     }
     async getModuleList() {
-        let modules = await this.module.toArray();
+        return new Promise((resolve, reject) => {
+            this.transaction('rw', 'module', 'role-module', async () => {
+                return await this.module.toArray(async modules => {
+                    const promiseItems = modules.map(i => {
+                        return new Promise(async (resolve, reject) => {
+                            let rs = await this['role-module'].where({moduleId: i.id}).toArray();
 
-        let tree = array2tree(modules);
+                            i.roles = rs.map(m => m.roleId);
 
-        return tree;
+                            resolve(i);
+                        })
+                    });
+
+                    return Promise.all(promiseItems);
+                });
+            }).then((modules) => {
+                let tree = array2tree(modules);
+                resolve({code: 0, data: tree, message: '成功'});
+            }).catch(e => {
+                reject({code: -1, data: null, message: e.message || '失败'});
+            });
+        });
     }
 }
 

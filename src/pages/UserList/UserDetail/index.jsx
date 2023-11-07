@@ -34,8 +34,6 @@ const UserForm = (props) => {
     const onConfirm = (e) => {
         form.validateFields().then(values => {
             props.onConfirm && props.onConfirm(values);
-        }).catch(e => {
-            console.log(e);
         });
     }
 
@@ -116,15 +114,6 @@ export default (props) => {
 
         props.onOk && props.onOk();
         message.success(`成功`);
-
-        // request(ADD_USER, {method: 'post', data: postData}).then(response => {
-        //     if(response?.code === '0') {
-        //         props.onOk && props.onOk();
-        //         message.success(`成功`);
-        //     }else{
-        //         console.log(response?.message);
-        //     }
-        // })
     };
 
     useEffect(() => {

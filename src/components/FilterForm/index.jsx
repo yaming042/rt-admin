@@ -61,8 +61,6 @@ export default (props) => {
             let v = handleValues(values);
 
             props.onConfirm && props.onConfirm(v);
-        }).catch(e => {
-            console.log(e);
         });
     }
 

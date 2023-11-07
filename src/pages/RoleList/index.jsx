@@ -131,7 +131,6 @@ export default () => {
         if(response?.code === 0) {
             let roleList = response?.data || [];
 
-            console.log(`roleList: `, roleList);
             setState(o => ({...o, total: 0, roleList}))
         }
     };
@@ -139,7 +138,6 @@ export default () => {
     const getModuleList = async () => {
         let moduleList = await rtDb.getModuleList();
 
-        console.log(`moduleList: `, moduleList);
         setState(o => ({...o, moduleList}));
     };
     // 筛选回调

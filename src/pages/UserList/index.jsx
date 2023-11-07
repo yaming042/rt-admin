@@ -123,7 +123,6 @@ export default () => {
     // 获取用户列表 - 分页
     const getUserPageList = async (option={}) => {
         let userList = await rtDb.getUserList();
-        console.log(userList);
         setState(o => ({...o, total: 0, userList: []}))
     };
     // 获取角色列表

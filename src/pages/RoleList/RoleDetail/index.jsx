@@ -73,11 +73,9 @@ export default (props) => {
                 }
             }).catch(e => {
                 setState(o => ({...o, submitting: false}));
-                console.log(e.message);
             });
         }).catch(e => {
             setState(o => ({...o, submitting: false}));
-            console.log(e.message);
         })
     };
 

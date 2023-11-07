@@ -16,25 +16,52 @@ export default () => {
         currentItemBak: null,
         moduleList: [],
         roleList: [],
-
-        pageNo: 1,
-        pageSize: 10,
-        total: 0,
     }),
     [state, setState] = useState(initState),
     [modal, contextHolder] = Modal.useModal();
 
-    // 获取权限列表
-    const queryModuleList = async () => {
-        let moduleList = await rtDb.getModuleList();
+    // 根据权限ID，获取权限数据
+    const getModuleInfo = (id, data=[]) => {
+        for(let i=0;i<data.length;i++) {
+            let o = data[i];
 
-        setState(o => ({...o, moduleList}));
+            if(o.id+'' === id+'') {
+                return o;
+            }else{
+                if(Array.isArray(o.children) && o.children.length) {
+                    let r = getModuleInfo(id, o.children);
+
+                    if(r) return r;
+                }
+            }
+        }
+
+        return null; // currentItem默认就是 null，所以这里最好就返回null
+    };
+    // 获取权限列表
+    const queryModuleList = async (currentId='') => {
+        let currentObj = {};
+        let response = await rtDb.getModuleList();
+
+        if(response?.code === 0) {
+            let moduleList = response?.data || [];
+
+            if(currentId) {
+                let o = getModuleInfo(currentId, moduleList);
+                currentObj = {
+                    currentItem: o,
+                    currentItemBak: deepCopy(o),
+                }
+            }
+
+            setState(o => ({...o, moduleList, ...currentObj}));
+        }
     };
     // 获取角色列表
     const queryRoleList = async () => {
-        let roleList = await rtDb.getRoleList();
+        let response = await rtDb.getRoleList();
 
-        setState(o => ({...o, roleList}));
+        setState(o => ({...o, roleList: response?.data || []}));
     };
     // 新建权限
     const addModule = () => {
@@ -42,20 +69,34 @@ export default () => {
 
         setState((o) => ({ ...o, currentItemBak: deepCopy(currentItem), currentItem: {isNew: true} }));
     };
-
+    // 选中一个权限，进行详情的展示
     const onSelectModule = (item) => {
         let {currentItem} = state;
         setState(o => ({...o, currentItemBak: deepCopy(currentItem), currentItem: deepCopy(item)}));
     }
-
+    // 重置当前选中项
+    const resetCurrentItem = () => {
+        setState(o => ({...o, currentItem: null, currentItemBak: null}));
+    };
     // 调用删除接口
     const confirmDelete = (row) => {
+        let {currentItem} = state;
+
         return new Promise((resolve, reject) => {
-            rtDb.deleteModule(row.id).then(() => {
-                // 请求权限
-                queryModuleList();
-                resolve();
-            });
+            let t = setTimeout(() => {
+                clearTimeout(t);
+
+                rtDb.deleteModule(row.id).then(() => {
+                    // 删除了选中的那项，那么就重置当前选中项
+                    if(row.id === currentItem?.id) resetCurrentItem();
+                    // 请求权限
+                    queryModuleList();
+
+                    resolve();
+                }).catch(e => {
+                    reject();
+                });
+            }, 1000);
         });
     }
     // 删除二次确认
@@ -70,19 +111,21 @@ export default () => {
             autoFocusButton: null,
         });
     }
+    // tree 组件通用的回调函数
     const treeHandle = (item, type) => {
         if('delete' === type) {
             checkDelete(item.data);
         }
     };
-
+    // 取消编辑、新建
     const onCancel = () => {
         let {currentItemBak} = state;
 
         setState((o) => ({ ...o, currentItem: deepCopy(currentItemBak), currentItemBak: null }));
     };
-    const onOk = () => {
-        queryModuleList();
+    // 确定编辑、新建
+    const onOk = (currentId='') => {
+        queryModuleList(currentId);
     };
 
     useEffect(() => {

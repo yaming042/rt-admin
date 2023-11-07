@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { Form, Input, Select, Radio, Button, Tree, message } from "antd";
+import { Form, Input, Select, Radio, Popconfirm, Button, Tree, message } from "antd";
 import { deepCopy } from "@/utils";
-import RoleList from "./../RoleList";
+import TagSelect from '@/components/Tags/Select';
 import styles from './index.module.scss';
 
 import rtDb from '@/../DB';
@@ -116,15 +116,29 @@ export default (props) => {
         [form] = Form.useForm();
 
     const newModule = (values) => {
-        rtDb.addModule(values).then(() => {
-            setState(o => ({...o, submitting: false}));
-            props.onOk && props.onOk();
+        return new Promise((resolve, reject) => {
+            let t = setTimeout(() => {
+                clearTimeout(t);
+
+                rtDb.addModule(values).then(v => {
+                    resolve({code: 0, data: v, message: '成功'});
+                }).catch(e => {
+                    reject({code: -1, data: null, message: e?.message || `新增权限失败`})
+                })
+            }, 1000);
         });
     };
     const updateModule = (values, moduleId) => {
-        rtDb.updateModule(values, moduleId).then(() => {
-            setState(o => ({...o, submitting: false}));
-            props.onOk && props.onOk();
+        return new Promise((resolve, reject) => {
+            let t = setTimeout(() => {
+                clearTimeout(t);
+
+                rtDb.updateModule(values, moduleId).then(v => {
+                    resolve({code: 0, data: moduleId, message: '成功'});
+                }).catch(e => {
+                    reject({code: -1, data: null, message: e?.message || `更新权限失败`})
+                })
+            }, 1000);
         });
     };
     const onReset = () => {
@@ -134,23 +148,35 @@ export default (props) => {
             props.onCancel && props.onCancel();
         }
     };
-    const onConfirm = () => {
-        // ++id,pid,order,code,name,desc,type,created_at,updated_at,deleted_at
-        form.validateFields().then(values => {
-            console.log(1, values);
 
+    /*
+        保存权限，成功后取消编辑状态，并显示保存的数据
+    */
+    const onConfirm = () => {
+        let {onOk} = props,
+            {id} = state?.form;
+
+        form.validateFields().then((values) => {
             setState(o => ({...o, submitting: true}));
 
             let postData = deepCopy(values);
+            (id ? updateModule(postData, id) : newModule(postData)).then(response => {
+                setState(o => ({...o, submitting: false}));
 
-            if(state.form?.id) {
-                updateModule(postData, state.form?.id);
-            }else{
-                newModule(postData);
-            }
-
+                if(response?.code === 0) {
+                    message.success(`${id ? '更新' : '新建'}权限成功`);
+                    setState(o => ({...o, isEdit: false, isNew: false}));
+                    // 新建、更新成功后回调
+                    onOk && onOk(id || response?.data || '');
+                }else{
+                    message.success(response?.message || `${id ? '更新' : '新建'}权限失败`);
+                }
+            }).catch(e => {
+                message.error(e?.message || `${id ? '更新' : '新建'}权限失败`);
+                setState(o => ({...o, submitting: false}));
+            })
         }).catch(e => {
-            console.log(e);
+            setState(o => ({...o, submitting: false}));
         })
     };
     const toEdit = () => {
@@ -262,7 +288,10 @@ export default (props) => {
                     name="roles"
                     label="角色"
                 >
-                    <RoleList roleList={state.roleList || []} />
+                    <TagSelect
+                        options={state.roleList || []}
+                        isReadOnly={!state.isEdit}
+                    />
                 </Form.Item>
             </Form>
             <div className={styles['submit']}>

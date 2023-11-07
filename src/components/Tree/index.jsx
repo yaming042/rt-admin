@@ -81,7 +81,6 @@ export default (props) => {
 
     // 选中一个节点
     const onSelect = (selectedKeys) => {
-        console.log(`onSelect: `, selectedKeys);
         setState(o => ({...o, selectedKeys}));
 
         let id = selectedKeys[0] || '',
@@ -90,8 +89,6 @@ export default (props) => {
         props?.onSelect && props?.onSelect(categoryData?.data);
     };
     const onCheck = (checkedKeys) => {
-        console.log(`onCheck: `, checkedKeys);
-
         setState(o => ({...o, checkedKeys}));
         let data = (state?.dataList || []).filter((i) => checkedKeys.includes(i.key));
 
