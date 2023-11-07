@@ -32,8 +32,8 @@ const Login = (props) => {
             let t = setTimeout(() => {
                 clearTimeout(t);
 
-                resolve({code: 0, data: null, message: '成功'});
-            }, 500);
+                resolve(rtDb.getUserInfo());
+            }, 1200);
         });
     };
     /*

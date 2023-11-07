@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import {connect} from 'react-redux';
 import { Dropdown, Badge, message} from 'antd';
 import { LogoutOutlined } from '@ant-design/icons';
-import { LOGOUT, HOME } from '@/config/url';
-import request from '@/utils/request';
+import { HOME } from '@/config/url';
+import Cookies from 'js-cookie';
 import styles from './index.module.scss';
 
 
@@ -41,13 +41,8 @@ const HeaderBar = (props) => {
     }
 
     const logout = () => {
-        request(LOGOUT).then(response => {
-            if(response?.code === 0) {
-                location.href = BASEDIR || '/';
-            }else{
-                message.error(response?.message || '退出失败')
-            }
-        });
+        Cookies.remove('rt-admin');
+        location.href = HOME;
     }
 
     const accountMenuClick = ({key}) => {
