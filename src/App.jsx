@@ -1,5 +1,4 @@
 import React, {useEffect, useState} from 'react';
-import { message } from 'antd';
 import { connect } from 'react-redux';
 import { BrowserRouter as Router, Redirect, useHistory } from 'react-router-dom';
 import CacheRoute, { CacheSwitch } from 'react-router-cache-route';
@@ -111,6 +110,7 @@ function App(props) {
                     indexPage,
                 }));
 
+                console.log(`userInfo: `, userInfo);
                 // 记录用户信息
                 dispatch({
                     type: SET_USER_INFO,
@@ -124,6 +124,7 @@ function App(props) {
                     value: indexPage,
                 });
             }).catch(e => {
+                console.log(1111, e.message);
                 setState(o => ({
                     ...o,
                     loading: false,

@@ -81,17 +81,17 @@ export class RTAdmin extends Dexie {
             if(!id) return reject({code: -1, data: null, message: `登录过期`});
 
             id = parseInt(id);
-            this.transaction('rw', 'user', 'role-user', 'role-module', async () => {
+            this.transaction('rw', 'user', 'role', 'module', 'role-user', 'role-module', async () => {
                 let userInfo = await this.user.get(id),
-                    roleIds = await this['role-user'].where({userId: userInfo.id}).toArray().map(i => i.roleId),
-                    moduleIds = await this['role-module'].where(roleIds.map(i => ({roleId: i}))).toArray().map(i => i.moduleId);
+                    roleIds = await this['role-user'].where({userId: userInfo.id}).toArray(i => i.map(m => m.roleId)),
+                    moduleIds = roleIds.length ? await this['role-module'].where(roleIds.map(i => ({roleId: i}))).toArray(i => i.map(m => m.moduleId)) : [];
 
                 // 获取角色详情
-                let roleInfos = await this.role.where(roleIds).toArray(),
-                    moduleInfos = await this.module.where(moduleIds).toArray();
+                let roleInfos = await this.role.bulkGet(roleIds),
+                    moduleInfos = await this.module.bulkGet(moduleIds);
 
-                userInfo['roles'] = roleInfos;
-                userInfo['modules'] = moduleInfos;
+                userInfo['roles'] = roleInfos.filter(Boolean);
+                userInfo['modules'] = moduleInfos.filter(Boolean);
                 userInfo['moduleTree'] = array2tree(moduleInfos);;
 
                 delete userInfo['password'];

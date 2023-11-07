@@ -1,3 +1,15 @@
 .container{
     position: relative;
+
+    form{
+        width: 50%;
+    }
+
+    .submit{
+        position: relative;
+
+        button{
+            margin-right: 12px;
+        }
+    }
 }
