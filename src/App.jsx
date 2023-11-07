@@ -3,12 +3,12 @@ import { message } from 'antd';
 import { connect } from 'react-redux';
 import { BrowserRouter as Router, Redirect, useHistory } from 'react-router-dom';
 import CacheRoute, { CacheSwitch } from 'react-router-cache-route';
-import { baseRouter, moduleRouter } from "@/config/router";
+import { baseRouter, moduleRouter, routers } from "@/config/router";
 import LayoutLoader from '@/layout';
 import Loading from '@/components/Loading';
 import { HOME, LOGIN, FORBIDDEN, ACCOUNT } from '@/config/url';
 import { mapMenuAddKey } from '@/utils';
-import { SET_USER_INFO } from '@/utils/constant';
+import { SET_USER_INFO, SET_INDEX_PAGE } from '@/utils/constant';
 import request from '@/utils/request';
 import Cookies from 'js-cookie';
 
@@ -81,7 +81,6 @@ function App(props) {
         dispatch = props.dispatch,
         history = useHistory();
 
-
     /*
         获取用户信息，也可以充当判断用户是否登录
     */
@@ -104,12 +103,19 @@ function App(props) {
                 type: SET_USER_INFO,
                 value: {avatar_url:'/images/logo_150.png'}
             });
+            dispatch({
+                type: SET_INDEX_PAGE,
+                value: indexPage,
+            });
         }, 1000);
     };
     // 这是入口文件，页面间切换不会触发，只有应用首次加载时才会触发
     useEffect(() => {
         validate();
     }, []);
+    useEffect(() => {
+        setState(o => ({...o, indexPage: props.indexPage}));
+    }, [props.indexPage]);
 
     return (
         !state.loading ?
@@ -144,7 +150,6 @@ function App(props) {
                                 />
                             })
                         }
-
                         <Redirect from={HOME} to={state.indexPage} />
                     </CacheSwitch>
                 </LayoutLoader>
@@ -154,12 +159,16 @@ function App(props) {
     );
 }
 
-
+function mapStateToProps({main}) {
+    return {
+        indexPage: main.indexPage,
+    }
+}
 function mapDispatchToProp(dispatch) {
     return {
         dispatch
     }
 }
-export default connect(null, mapDispatchToProp)(App);
+export default connect(mapStateToProps, mapDispatchToProp)(App);
 
 

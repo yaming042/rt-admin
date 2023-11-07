@@ -1,12 +1,14 @@
 import { useState, useEffect } from "react";
+import { connect } from 'react-redux';
 import { Form, Input, Button, message } from 'antd';
 import { useHistory } from 'react-router-dom';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
-import { HOME } from '@/config/url';
+import { HOME, ACCOUNT } from '@/config/url';
+import { SET_USER_INFO, SET_INDEX_PAGE } from '@/utils/constant';
 import Cookies from "js-cookie";
 import styles from './index.module.scss';
 
-export default (props) => {
+const Login = (props) => {
     const initState = () => ({
             submitting: false,
             success: false,
@@ -14,23 +16,73 @@ export default (props) => {
         [state, setState] = useState(initState),
         history = useHistory();
 
-    const onFinish = (values) => {
+    /*
+        获取用户信息，也可以充当判断用户是否登录
+    */
+    const getUserInfo = () => {
+        return new Promise((resolve, reject) => {
+            let t = setTimeout(() => {
+                clearTimeout(t);
+
+                resolve({code: 0, data: null, message: '成功'});
+            }, 500);
+        });
+    };
+    /*
+        登录
+    */
+    const toLogin = () => {
+        return new Promise((resolve, reject) => {
+            let t = setTimeout(() => {
+                clearTimeout(t);
+
+                resolve({code: 0, data: null, message: '成功'});
+            }, 1200);
+        });
+    };
+    const onFinish = async (values) => {
+        let dispatch = props.dispatch;
+
         setState(o => ({...o, submitting: true, success: false}));
 
-        let t = setTimeout(() => {
-            clearTimeout(t);
+        try{
+            let loginResponse = await toLogin(values);
 
-            setState(o => ({...o, submitting: false, success: true}));
+            if(loginResponse?.code ===0) {
+                // 设置cookie
+                Cookies.set('rt-admin', true);
+                let userResponse = await getUserInfo();
 
-            Cookies.set('rt-admin', true);
-            message.success(`登录成功，即将跳转`);
+                if(userResponse?.code === 0) {
+                    let userInfo = userResponse?.data || {},
+                        purview = userInfo?.modules || [],
+                        indexPage = purview[0] || ACCOUNT; // TODO，默认第一个页面
 
-            let tt = setTimeout(() => {
-                clearTimeout(tt);
+                    setState(o => ({...o, submitting: false, success: true}));
+                    message.success(`登录成功，即将跳转`);
 
-                history.push(HOME);
-            }, 500);
-        }, 1000);
+                    // 记录用户信息
+                    dispatch && dispatch({
+                        type: SET_USER_INFO,
+                        value: {avatar_url:'/images/logo_150.png'}
+                    });
+                    dispatch && dispatch({
+                        type: SET_INDEX_PAGE,
+                        value: indexPage,
+                    });
+
+                    // 跳转页面
+                    let t = setTimeout(() => {
+                        clearTimeout(t);
+
+                        history.push(HOME);
+                    }, 1200);
+                }
+            }
+        }catch(e){
+            setState(o => ({...o, submitting: false, success: false}));
+            message.error(e?.message || `登录失败`);
+        }
     };
 
     return (
@@ -72,3 +124,10 @@ export default (props) => {
         </Form>
     );
 }
+
+function mapDispatchToProp(dispatch) {
+    return {
+        dispatch
+    }
+}
+export default connect(null, mapDispatchToProp)(Login);

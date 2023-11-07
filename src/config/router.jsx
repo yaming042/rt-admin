@@ -60,6 +60,10 @@ const baseRouters = [
         component: Forbidden,
         showInMenu: false,
     },
+];
+
+// 这些路由需要登录 且 有权限才能访问
+const moduleRouters = [
     {
         url: URL.OVERVIEW,
         icon: '',
@@ -67,10 +71,6 @@ const baseRouters = [
         component: Overview,
         showInMenu: true,
     },
-];
-
-// 这些路由需要登录 且 有权限才能访问
-const moduleRouters = [
     {
         url: URL.USER_LIST,
         icon: '',
