@@ -136,9 +136,12 @@ export default () => {
     };
     // 获取权限列表
     const getModuleList = async () => {
-        let moduleList = await rtDb.getModuleList();
+        let response = await rtDb.getModuleList();
+        if(response?.code === 0) {
+            let moduleList = response?.data || [];
 
-        setState(o => ({...o, moduleList}));
+            setState(o => ({...o, moduleList}));
+        }
     };
     // 筛选回调
     const onConfirmSearch = (option={}) => {

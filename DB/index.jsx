@@ -1,5 +1,11 @@
 import Dexie from 'dexie';
 import {array2tree} from '@/utils';
+import Cookies from 'js-cookie';
+
+/*
+    TODO
+    权限的 order 怎么处理？
+*/
 
 // 去除对象中值为空的字段
 const format = (options={}) => {
@@ -18,29 +24,137 @@ export class RTAdmin extends Dexie {
         super('RT-Admin');
 
         this.version(1).stores({
-            'user': "++id,username,name,avatar,email,status,roles,created_at,updated_at,deleted_at",
+            'user': "++id,username,name,avatar,email,status,roles,password,created_at,updated_at,deleted_at",
             'role': "++id,name,desc,users,modules,created_at,updated_at,deleted_at",
             'module': "++id,pid,order,code,name,desc,type,created_at,updated_at,deleted_at",
             'role-user': "++id,userId,roleId",
-            'role-module': "++id,roleId,moduleId"
+            'role-module': "++id,roleId,moduleId",
+        });
+    }
+
+    // 登录
+    async login(options={}) {
+        return new Promise((resolve, reject) => {
+            this.user.where({username: options.username, password: options.password}).toArray().then(r => {
+                if(r.length) {
+                    resolve({code: 0, data: r[0].id, message: '成功'});
+                }else{
+                    reject({code: -1, data: null, message: `账号、密码错误`});
+                }
+            }).catch(e => {
+                reject({code: -1, data: null, message: `账号、密码错误`});
+            })
         });
     }
 
     // 添加用户
-    addUser(options={}) {
-        return this.user.add(options);
+    async addUser(options) {
+        let {roles=[], ...rest} = options,
+            now = +new Date();
+
+        return new Promise((resolve, reject) => {
+            this.transaction('rw', 'user', 'role-user', async () => {
+                let exist = await this.user.where({username: rest.username}).toArray();
+
+                if(exist.length) {
+                    return reject({code: -1, data: null, message: `用户名已存在`});
+                }
+
+                let userId = await this.user.add({...rest, password: '123456', created_at: now, updated_at: now});
+
+                let rolesData = (roles || []).map(i => ({roleId: i, userId}));
+                if(rolesData.length) {
+                    await this['role-user'].bulkAdd(rolesData);
+                }
+
+                return userId;
+            }).then((record) => {
+                resolve({code: 0, data: record, message: '成功'});
+            }).catch(e => {
+                reject({code: -1, data: null, message: e.message || '失败'});
+            });
+        });
     }
-    getUserInfo(id='') {
-        return this.user.get(id);
+    getUserInfo() {
+        let id = Cookies.get('rt-admin');
+        return new Promise(async (resolve, reject) => {
+            if(!id) return reject({code: -1, data: null, message: `登录过期`});
+
+            id = parseInt(id);
+            this.transaction('rw', 'user', 'role-user', 'role-module', async () => {
+                let userInfo = await this.user.get(id),
+                    roleIds = await this['role-user'].where({userId: userInfo.id}).toArray().map(i => i.roleId),
+                    moduleIds = await this['role-module'].where(roleIds.map(i => ({roleId: i}))).toArray().map(i => i.moduleId);
+
+                // 获取角色详情
+                let roleInfos = await this.role.where(roleIds).toArray(),
+                    moduleInfos = await this.module.where(moduleIds).toArray();
+
+                userInfo['roles'] = roleInfos;
+                userInfo['modules'] = moduleInfos;
+                userInfo['moduleTree'] = array2tree(moduleInfos);;
+
+                delete userInfo['password'];
+
+                return userInfo;
+            }).then((record) => {
+                resolve({code: 0, data: record, message: '成功'});
+            }).catch(e => {
+                reject({code: -1, data: null, message: e.message || '失败'});
+            });
+
+        });
     }
     getUserList(options={}) {
         options = format(options);
-        if(Object.prototype.toString.call(options) === '[object Object]' && !Object.keys(options).length) {
-            return this.user.toArray();
-        }
+        let {username, name, email, status} = options || {},
+            obj = format({username, name, email, status}),
+            isAll = Object.keys(obj).length === 0;
 
-        let {username, name, email, status} = options || {};
-        return this.user.where(format({username, name, email, status})).toArray();
+        return new Promise((resolve, reject) => {
+            this.transaction('rw', 'user', 'role-user', async () => {
+                let record = await ( isAll ? this.user : this.user.where(obj)).toArray((users) => {
+
+                    const promiseItems = users.map(i => {
+                        return new Promise(async (resolve, reject) => {
+                            let rs = await this['role-user'].where({userId: i.id}).toArray();
+
+                            i.roles = rs.map(m => m.roleId);
+                            delete i['password'];
+
+                            resolve(i);
+                        })
+                    });
+
+                    return Promise.all(promiseItems)
+                });
+
+
+                return record;
+            }).then((record) => {
+                resolve({code: 0, data: record, message: '成功'});
+            }).catch(e => {
+                reject({code: -1, data: null, message: e.message || '失败'});
+            });
+        });
+    }
+    deleteUser(id) {
+        // 需要删除 关联的角色
+        return new Promise((resolve, reject) => {
+            this.transaction('rw', 'user', 'role-user', async () => {
+                let users = await this['role-user'].where({userId: id}).toArray(),
+                    usersData = users.map(i => i.id);
+
+                await this.user.delete(id);
+                await this['role-user'].bulkDelete(usersData);
+
+                return id;
+            }).then((id) => {
+                resolve({code: 0, data: id, message: '成功'});
+            }).catch(e => {
+                reject({code: -1, data: null, message: e.message || '失败'});
+            });
+        });
     }
 
     // 角色

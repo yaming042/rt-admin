@@ -55,7 +55,15 @@ export default (props) => {
         [state, setState] = useState(initState),
         [form] = Form.useForm();
 
-    const getModuleList = () => {};
+    const getUserList = async () => {
+        let response = await rtDb.getUserList();
+
+        if(response?.code === 0) {
+            let userList = response?.data || [];
+
+            setState(o => ({...o, userList}))
+        }
+    };
 
     const onCancel = () => {
         form.resetFields();
@@ -92,7 +100,7 @@ export default (props) => {
         }))
     }, [props]);
     useEffect(() => {
-        getModuleList();
+        getUserList();
     }, []);
 
     return (
@@ -132,7 +140,7 @@ export default (props) => {
                         mode="multiple"
                         allowClear={true}
                         style={{ width: '100%' }}
-                        options={(state.userList || []).map(item => ({ value: item.id, label: item.name }))}
+                        options={(state.userList || []).map(item => ({ value: item.id, label: item.username }))}
                     />
                 </Form.Item>
                 <Form.Item

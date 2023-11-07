@@ -1,120 +1,17 @@
 import { useState, useEffect } from "react";
-import { Modal, Tabs, Form, Input, Select, Button, message } from "antd";
-import request from '@/utils/request';
-// import {ADD_USER} from '@/config/url';
-import {isMobile} from '@/utils';
+import { Modal, Tabs, Button, message } from "antd";
+import UserForm from "../UserForm";
 import styles from './index.module.scss';
 
-const layout = {
-    labelCol: {
-        span: 4,
-    },
-    wrapperCol: {
-        span: 20,
-    },
-}
-
-const UserForm = (props) => {
-    const initState = () => ({
-        form: {
-            username: props?.userInfo?.username || '',
-            phone: props?.userInfo?.phone || '',
-            roles: props?.userInfo?.roles || [],
-        },
-        roleList: props?.roleList || [],
-    }),
-        [state, setState] = useState(initState),
-        [form] = Form.useForm();
-
-    const onReset = (e) => {
-        form.resetFields();
-
-        props.onReset && props.onReset();
-    }
-    const onConfirm = (e) => {
-        form.validateFields().then(values => {
-            props.onConfirm && props.onConfirm(values);
-        });
-    }
-
-    useEffect(() => {
-        setState(o => ({
-            ...o,
-            form: {
-                username: props?.userInfo?.username || '',
-                phone: props?.userInfo?.phone || '',
-                roles: props?.userInfo?.roles || [],
-            },
-            roleList: props?.roleList || [],
-        }));
-    }, [props]);
-
-    return (
-        <Form
-            form={form}
-            initialValues={state.form}
-            {...layout}
-        >
-            <Form.Item
-                name="username"
-                label="用户名"
-                rules={[
-                    { required: true, message: '请输入用户名'},
-                ]}
-            >
-                <Input placeholder="请输入用户名" />
-            </Form.Item>
-            <Form.Item
-                name="phone"
-                label="手机号码"
-                rules={[
-                    { required: true, message: '请输入手机号码'},
-                    { validator: (_, value) => {
-                        if(value && !isMobile(value)) {
-                            return Promise.reject(`请填写正确的手机号`);
-                        }
-                        return Promise.resolve();
-                    }},
-                ]}
-            >
-                <Input placeholder="请输入手机号码" />
-            </Form.Item>
-            <Form.Item
-                name="roles"
-                label="用户角色"
-            >
-                <Select
-                    placeholder="请选择用户角色"
-                    mode="multiple"
-                    allowClear={true}
-                    style={{ width: '100%' }}
-                    options={(state.roleList || []).map(item => ({ value: item.id, label: item.username }))}
-                />
-            </Form.Item>
-
-            <div className={styles['submit']}>
-                <Button onClick={onReset}>取消</Button>
-                <Button onClick={onConfirm} type="primary">确定</Button>
-            </div>
-        </Form>
-    );
-};
 
 export default (props) => {
     const initState = () => ({
-        roleList: props.roleList || [],
-        userInfo: props.userInfo || {},
-        open: props.open || false,
-        tabIndex: 'tab1',
-    }),
+            roleList: props.roleList || [],
+            userInfo: props.userInfo || {},
+            open: props.open || false,
+            tabIndex: 'tab1',
+        }),
         [state, setState] = useState(initState);
-
-    const onConfirm = (values = {}) => {
-        let postData = {phone: values.phone, username: values.username};
-
-        props.onOk && props.onOk();
-        message.success(`成功`);
-    };
 
     useEffect(() => {
         setState(o => ({ ...o, roleList: props.roleList || [], userInfo: props.userInfo || {}, open: props.open }))
@@ -133,8 +30,8 @@ export default (props) => {
                     <UserForm
                         userInfo={state.userInfo}
                         roleList={state.roleList}
-                        onReset={props.onCancel}
-                        onConfirm={onConfirm}
+                        onCancel={props.onCancel}
+                        onOk={props.onOk}
                     />
                     :
                     <Tabs
@@ -148,8 +45,8 @@ export default (props) => {
                                     children: <UserForm
                                         form={state.userInfo}
                                         roleList={state.roleList}
-                                        onReset={props.onCancel}
-                                        onConfirm={onConfirm}
+                                        onCancel={props.onCancel}
+                                        onOk={props.onOk}
                                     />
                                 },
                                 {

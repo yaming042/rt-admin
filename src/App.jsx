@@ -12,7 +12,7 @@ import { SET_USER_INFO, SET_INDEX_PAGE } from '@/utils/constant';
 import request from '@/utils/request';
 import Cookies from 'js-cookie';
 
-
+import rtDb from '@/../DB';
 
 // 打平路由
 const flatterRouter = (data=[]) => {
@@ -33,6 +33,13 @@ const flatterRouter = (data=[]) => {
 
     return routers;
 };
+// 随机毫秒数
+const randomTime = (min, max) => {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
 const ROUTE_CLASS_NAME = `route-container`;
 const getRouteClass = (className='') => {
     let pathname = location.pathname.replace(/\//g, '').replace(/-/g, '');
@@ -85,29 +92,49 @@ function App(props) {
         获取用户信息，也可以充当判断用户是否登录
     */
     const validate = () => {
-        let indexPage = '',
-            purview = [];
-
         let t = setTimeout(() => {
             clearTimeout(t);
 
-            // 如果没登录
-            if(!Cookies.get('rt-admin')) {
-                indexPage = LOGIN;
-            }else{
-                indexPage = purview[0] || ACCOUNT; // TODO，默认第一个页面
-            }
-            setState(o => ({...o, loading: false, purview: [], userInfo: {avatar_url:'/images/logo_150.png'}, indexPage}));
-            // 记录用户信息
-            dispatch({
-                type: SET_USER_INFO,
-                value: {avatar_url:'/images/logo_150.png'}
+            rtDb.getUserInfo().then(response => {
+                let userInfo = response?.data || {},
+                    purview = userInfo?.modules || [],
+                    indexPage = purview[0] || ACCOUNT;
+
+                setState(o => ({
+                    ...o,
+                    loading: false,
+                    purview,
+                    userInfo: {
+                        ...userInfo,
+                        avatar:'/images/logo_150.png',
+                    },
+                    indexPage,
+                }));
+
+                // 记录用户信息
+                dispatch({
+                    type: SET_USER_INFO,
+                    value: {
+                        ...userInfo,
+                        avatar:'/images/logo_150.png',
+                    }
+                });
+                dispatch({
+                    type: SET_INDEX_PAGE,
+                    value: indexPage,
+                });
+            }).catch(e => {
+                setState(o => ({
+                    ...o,
+                    loading: false,
+                    purview: [],
+                    userInfo: {
+                        avatar:'/images/logo_150.png',
+                    },
+                    indexPage: LOGIN,
+                }));
             });
-            dispatch({
-                type: SET_INDEX_PAGE,
-                value: indexPage,
-            });
-        }, 1000);
+        }, randomTime(200, 1200));
     };
     // 这是入口文件，页面间切换不会触发，只有应用首次加载时才会触发
     useEffect(() => {

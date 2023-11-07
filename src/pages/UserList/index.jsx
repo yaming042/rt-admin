@@ -4,8 +4,7 @@ import FilterForm from "@/components/FilterForm";
 import UserDetail from "./UserDetail";
 import { DeleteOutlined, EditOutlined, PlusCircleOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import { paginationConfig, COLORS } from "@/config";
-import request from '@/utils/request';
-// import { QUERY_USER_LIST_PAGE, QUERY_ROLE_LIST } from '@/config/url';
+import dayjs from "dayjs";
 import styles from './index.module.scss';
 
 import rtDb from '@/../DB';
@@ -28,11 +27,14 @@ export default () => {
     // 调用删除接口
     const confirmDelete = (row) => {
         return new Promise((resolve, reject) => {
-            let t = setTimeout(() => {
-                clearTimeout(t);
+            rtDb.deleteUser(row.id).then(response => {
+                if(0 === response?.code) {
+                    getUserPageList();
+                    return resolve();
+                }
 
-                resolve()
-            }, 3000)
+                reject();
+            }).catch(e => reject());
         });
     }
     // 删除二次确认
@@ -63,19 +65,26 @@ export default () => {
                 dataIndex: 'username',
             },
             {
-                title: '手机号码',
-                dataIndex: 'phone',
+                title: '姓名',
+                dataIndex: 'name',
+            },
+            {
+                title: '邮箱',
+                dataIndex: 'email',
             },
             {
                 title: '角色',
                 dataIndex: 'roles',
                 render: (text, record) => {
-                    return (text || []).map((item, index) => <Tag key={index} color={COLORS[index%20]} >{item.name}</Tag>);
+                    let {roleList} = state,
+                        o = (roleList || []).filter(i => text.includes(i.id));
+
+                    return (o || []).map((item, index) => <Tag key={index} color={COLORS[index%20]} >{item?.name || text}</Tag>);
                 }
             },
             {
                 title: '创建时间',
-                dataIndex: 'createTime',
+                dataIndex: 'created_at',
                 width: 180,
                 /*
                     Safari 下 new Date('2020-11-16 12:12:12').getTime()会返回NaN
@@ -87,10 +96,13 @@ export default () => {
                         +new Date(a.createTime.replace(/-/g, '/'))
                     );
                 },
+                render: text => {
+                    return dayjs(text).format('YYYY-MM-DD HH:mm:ss')
+                }
             },
             {
                 title: '更新时间',
-                dataIndex: 'updateTime',
+                dataIndex: 'updated_at',
                 width: 180,
                 sorter: (a, b) => {
                     return (
@@ -98,12 +110,15 @@ export default () => {
                         +new Date(a.updateTime.replace(/-/g, '/'))
                     );
                 },
+                render: text => {
+                    return dayjs(text).format('YYYY-MM-DD HH:mm:ss')
+                }
             },
             {
                 title: '操作',
                 dataIndex: 'opt',
                 className: 'table-ope',
-                width: 80,
+                width: 120,
                 fixed: 'right',
                 render: (text, record, index) => {
                     return (
@@ -122,12 +137,23 @@ export default () => {
     }
     // 获取用户列表 - 分页
     const getUserPageList = async (option={}) => {
-        let userList = await rtDb.getUserList();
-        setState(o => ({...o, total: 0, userList: []}))
+        let response = await rtDb.getUserList(option);
+
+        if(response?.code === 0) {
+            let userList = response?.data || [];
+
+            setState(o => ({...o, userList}))
+        }
     };
     // 获取角色列表
-    const getRoleList = () => {
-        setState(o => ({...o, roleList: []}));
+    const getRoleList = async () => {
+        let response = await rtDb.getRoleList();
+
+        if(response?.code === 0) {
+            let roleList = response?.data || [];
+
+            setState(o => ({...o, roleList}))
+        }
     };
     // 筛选回调
     const onConfirmSearch = (option={}) => {

@@ -21,7 +21,7 @@ const HeaderBar = (props) => {
                 label: (<div className={styles['user-name']}>
                     <span>
                         {
-                            userInfo?.avatar_url ? <img src={userInfo?.avatar_url || ''} /> : char
+                            userInfo?.avatar ? <img src={userInfo?.avatar || ''} /> : char
                         }
                     </span>
                     <div>{name}</div>
@@ -78,8 +78,8 @@ const HeaderBar = (props) => {
                         <Badge>
                             <div className={styles['avatar']}>
                                 {
-                                    userInfo?.avatar_url ?
-                                        <img src={userInfo?.avatar_url || ''} />
+                                    userInfo?.avatar ?
+                                        <img src={userInfo?.avatar || ''} />
                                         :
                                         (userInfo?.name || userInfo?.login || '').charAt().toUpperCase()
                                 }
