@@ -9,7 +9,6 @@ import request from '@/utils/request';
 // import { QUERY_USER_LIST_PAGE, QUERY_ROLE_LIST } from '@/config/url';
 import styles from './index.module.scss';
 
-import rtDb from '@/../DB';
 
 export default () => {
     const initState = () => ({
@@ -30,7 +29,7 @@ export default () => {
     const confirmDelete = (row) => {
         return new Promise((resolve, reject) => {
 
-            rtDb.deleteRole(row.id).then(response => {
+            Promise.resolve().then(response => {
                 if(0 === response?.code) {
                     getRoleList();
                     return resolve();
@@ -126,7 +125,7 @@ export default () => {
     }
     // 获取角色列表
     const getRoleList = async (option={}) => {
-        let response = await rtDb.getRoleList();
+        let response = {code:0,data: [],message:'成功'};
 
         if(response?.code === 0) {
             let roleList = response?.data || [];
@@ -136,7 +135,7 @@ export default () => {
     };
     // 获取权限列表
     const getModuleList = async () => {
-        let response = await rtDb.getModuleList();
+        let response = {code:0,data: [],message:'成功'};
         if(response?.code === 0) {
             let moduleList = response?.data || [];
 

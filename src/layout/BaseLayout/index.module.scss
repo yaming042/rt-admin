@@ -22,13 +22,14 @@
         overflow: hidden;
 
         .side-bar{
-            width: 200px;
+            max-width: 200px;
             display: flex;
             flex-direction: column;
             flex-shrink: 0;
             background: #fff;
             border-right: 1px solid #F3F5F6;
             padding: 10px 0 0;
+            transition: all 0.3s;
 
             .menu{
                 position: relative;
@@ -62,5 +63,13 @@
                 padding: 24px;
             }
         }
+    }
+
+    .footer{
+        position: relative;
+        height: 64px;
+        background-color: #fff;
+        display: flex;
+        flex-shrink: 0;
     }
 }

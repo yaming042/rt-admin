@@ -7,7 +7,6 @@ import { paginationConfig, COLORS } from "@/config";
 import dayjs from "dayjs";
 import styles from './index.module.scss';
 
-import rtDb from '@/../DB';
 
 export default () => {
     const initState = () => ({
@@ -27,7 +26,7 @@ export default () => {
     // 调用删除接口
     const confirmDelete = (row) => {
         return new Promise((resolve, reject) => {
-            rtDb.deleteUser(row.id).then(response => {
+            Promise.resolve().then(response => {
                 if(0 === response?.code) {
                     getUserPageList();
                     return resolve();
@@ -137,7 +136,7 @@ export default () => {
     }
     // 获取用户列表 - 分页
     const getUserPageList = async (option={}) => {
-        let response = await rtDb.getUserList(option);
+        let response = {code:0,data: [],message:'成功'};
 
         if(response?.code === 0) {
             let userList = response?.data || [];
@@ -147,7 +146,7 @@ export default () => {
     };
     // 获取角色列表
     const getRoleList = async () => {
-        let response = await rtDb.getRoleList();
+        let response = {code: 0, data: [], message: '成功'};
 
         if(response?.code === 0) {
             let roleList = response?.data || [];

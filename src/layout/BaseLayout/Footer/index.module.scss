@@ -1,0 +1,41 @@
+.container{
+    position: relative;
+    width: 100%;
+    height: 100%;
+
+    .menu-list{
+        position: relative;
+        display: flex;
+        align-items: center;
+        height: 100%;
+        justify-content: space-around;
+
+        .menu-item{
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            flex-grow: 1;
+            height: 100%;
+            cursor: pointer;
+            font-size: 12px;
+
+            .icon{
+                position: relative;
+
+                svg{
+                    width: 24px;
+                }
+            }
+
+            .name{
+                position: relative;
+            }
+
+            &.active{
+                background-color: #1ed652;
+            }
+        }
+    }
+}

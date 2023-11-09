@@ -4,8 +4,6 @@ import { deepCopy } from "@/utils";
 import TagSelect from '@/components/Tags/Select';
 import styles from './index.module.scss';
 
-import rtDb from '@/../DB';
-
 const layout = {
     labelCol: {
         span: 4,
@@ -120,7 +118,7 @@ export default (props) => {
             let t = setTimeout(() => {
                 clearTimeout(t);
 
-                rtDb.addModule(values).then(v => {
+                Promise.resolve().then(v => {
                     resolve({code: 0, data: v, message: '成功'});
                 }).catch(e => {
                     reject({code: -1, data: null, message: e?.message || `新增权限失败`})
@@ -133,7 +131,7 @@ export default (props) => {
             let t = setTimeout(() => {
                 clearTimeout(t);
 
-                rtDb.updateModule(values, moduleId).then(v => {
+                Promise.resolve().then(v => {
                     resolve({code: 0, data: moduleId, message: '成功'});
                 }).catch(e => {
                     reject({code: -1, data: null, message: e?.message || `更新权限失败`})

@@ -5,19 +5,21 @@ export const HOME = `${BASEDIR}/`;
 export const LOGIN = `${BASEDIR}/login`;
 export const OVERVIEW = `${BASEDIR}/overview`;
 
+export const PROJECT_MANAGE = `${BASEDIR}/projects`;
+export const PROJECT_LINE_MANAGE = `${BASEDIR}/project-line`;
+export const LINE_MANAGE = `${BASEDIR}/lines`;
+export const LINE_DETAIL = `${BASEDIR}/line`;
 export const USER_LIST = `${BASEDIR}/user-list`;
 export const ROLE_LIST = `${BASEDIR}/role-list`;
 export const AUTH_LIST = `${BASEDIR}/module-list`;
 export const ACCOUNT = `${BASEDIR}/account`;
 
-export const TEST5 = `${BASEDIR}/test5`;
-
-
-export const EDITOR = `${BASEDIR}/editor`;
-
 
 export const API_PREFIX = `/api`;
 // 接口
+export const VALIDATE = ``; // 校验用户是否登录
+
+
 export const QUERY_USER_INFO = `${API_PREFIX}/gh/user`; // 获取用户信息/判断用户是否已经登录
 export const QUERY_REPO_INFO = `${API_PREFIX}/gh/repo`; // 获取仓库信息
 export const CREATE_REPO = `${API_PREFIX}/gh/repo`; // 创建仓库

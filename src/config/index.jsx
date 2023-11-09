@@ -1,30 +1,39 @@
-import { deepCopy } from "@/utils";
-// import routers from './router';
+// 路由、菜单相关函数 ===== begin
+// 给路由增加 key
+export const mapMenuAddKey = (menus=[], parentKey='') => {
+    return (menus || []).map((item, index) => {
+        let {children, ...o} = item;
 
-// 辅助函数 ===== begin
-// 为菜单数据增加key字段
-const mapMenuWithKey = (data=[]) => {
-    return (data || []).map(item => {
-        let o = {...item};
-        o.key = o.url || o.key;
+        if(typeof o.url === 'string') {
+            o.key = o.url;
+        }
+        if(typeof o.key !== 'string' && o.url ) {
+            o.key = `${parentKey ? parentKey+'/' : ''}${o.url || index}`.replace(/(\/\/)/g, '/');
+        }
 
-        if(Array.isArray(o.children) && o.children.length) {
-            o.children = mapMenuWithKey(o.children);
-        }else if(o.hasOwnProperty('children')) {
-            delete o.children;
+        if(Array.isArray(children) && children.length) {
+            o.children = mapMenuAddKey(children, o.key);
         }
 
         return o;
-    })
+    });
 };
-// 获取侧边菜单渲染需要的数据，其实就是处理 menuHidden 字段，只要需要展示出来的菜单；并不是所有菜单都需要展示在左侧菜单，所以额外处理一次
-const getSideMenuData = (data=[]) => {
-    return data.map(item => {
-        let o = deepCopy(item);
 
-        if(!o.menuHidden) {
+/*
+    获取有权限的菜单
+    data: 菜单数据
+    modules: 权限数据
+    return: 有权限的菜单数据
+*/
+export const getAuthMenu = (data=[], modules=[]) => {
+    return data.map(item => {
+        let {component, layout, showInMenu, ...o} = item;
+
+        if(showInMenu === false) return undefined;
+
+        if(o.url && (DEBUG === 'true' || modules.includes(o.url))) {
             if(Array.isArray(o.children) && o.children.length) {
-                let res = getSideMenuData(o.children);
+                let res = getAuthMenu(o.children, modules);
 
                 if(res.length) {
                     o.children = res;
@@ -34,30 +43,65 @@ const getSideMenuData = (data=[]) => {
             }
 
             return o;
+        }else if(!o.url && Array.isArray(o.children) && o.children.length) {
+            let res = getAuthMenu(o.children, modules);
+
+            if(res.length) {
+                o.children = res;
+            }else{
+                return undefined;
+            }
+
+            return o;
         }
+
         return undefined;
     }).filter(Boolean);
 };
-// 获取需要渲染的路由
-const getRenderRouterData = (treeArray = [], parentId = null) => {
-    const flatArray = [];
 
-    for (const node of treeArray) {
-        const flatNode = {
-            pid: parentId, // 父节点的 id
-            ...node,// 其他节点属性...
-        };
 
-        flatArray.push(flatNode);
+/*
+    获取需要渲染的路由，将路由打平成数组来渲染
+*/
+export const getRouterData = (data=[]) => {
+    let routers = [];
+    (data || []).map(item => {
+        if(item.key || item.url) {
+            if(item.url) routers.push(item); // 只要有url就先记录路由
 
-        if (node.children && node.children.length > 0) {
-            flatArray.push(...getRenderRouterData(node.children, node.key)); // 传递当前节点的 id 作为父节点的 pid
+            if(Array.isArray(item.children) && item.children.length) {
+                let r = getRouterData(item.children);
+
+                routers = routers.concat(r);
+            }
+        }
+    });
+
+    return routers;
+};
+
+/*
+    获取当前页面的 路由路径
+*/
+export const getPagePath = (pathname='', routers=[]) => {
+    let result = [];
+    for(let i=0;i<routers.length;i++) {
+        let cur = routers[i];
+
+        if(cur.key === pathname) result.push(cur);
+
+        if(Array.isArray(cur.children) && cur.children.length) {
+            let r = getPagePath(pathname, cur.children);
+            result = r.concat(result);
+            if(r.length) {
+                result.push(cur);
+            }
         }
     }
 
-    return flatArray;
+    return result;
 };
-// 辅助函数 ===== end
+// 路由、菜单相关函数 ===== end
 
 // 分页基本配置
 export const paginationConfig = {

@@ -1,44 +1,28 @@
 import React, {useEffect, useState} from 'react';
 import { connect } from 'react-redux';
-import { BrowserRouter as Router, Redirect, useHistory } from 'react-router-dom';
+import { BrowserRouter as Router, Redirect } from 'react-router-dom';
 import CacheRoute, { CacheSwitch } from 'react-router-cache-route';
-import { baseRouter, moduleRouter, routers } from "@/config/router";
+import { baseRouter, moduleRouter } from "@/config/router";
 import LayoutLoader from '@/layout';
 import Loading from '@/components/Loading';
-import { HOME, LOGIN, FORBIDDEN, ACCOUNT } from '@/config/url';
-import { mapMenuAddKey } from '@/utils';
-import { SET_USER_INFO, SET_INDEX_PAGE } from '@/utils/constant';
+import { HOME, LOGIN, FORBIDDEN, ACCOUNT, VALIDATE } from '@/config/url';
+import { getGrid } from '@/utils';
+import { mapMenuAddKey, getRouterData } from '@/config';
+import { SET_USER_INFO, SET_INDEX_PAGE, SET_GRID } from '@/utils/constant';
 import request from '@/utils/request';
 import Cookies from 'js-cookie';
 
-import rtDb from '@/../DB';
-
-// 打平路由
-const flatterRouter = (data=[]) => {
-    let routers = [];
-    (data || []).map(item => {
-        if(item.key || item.url) {
-            if(Array.isArray(item.children) && item.children.length) {
-                let r = flatterRouter(item.children);
-
-                routers = routers.concat(r);
-            }else{
-                if(item.url) {
-                    routers.push(item);
-                }
-            }
-        }
-    });
-
-    return routers;
+// 防抖
+const debounce = (callback, delay) => {
+    let timer;
+    return function () {
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+            callback.apply(this, arguments);
+        }, delay);
+    };
 };
-// 随机毫秒数
-const randomTime = (min, max) => {
-    min = Math.ceil(min);
-    max = Math.floor(max);
 
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-}
 const ROUTE_CLASS_NAME = `route-container`;
 const getRouteClass = (className='') => {
     let pathname = location.pathname.replace(/\//g, '').replace(/-/g, '');
@@ -75,69 +59,70 @@ function App(props) {
     const initState = () => ({
             loading: true,
             purview: [], // 权限列表
-            baseRouters: flatterRouter(mapMenuAddKey(baseRouter)),
-            moduleRouters: flatterRouter(mapMenuAddKey(moduleRouter)),
+            baseRouters: getRouterData(mapMenuAddKey(baseRouter)),
+            moduleRouters: getRouterData(mapMenuAddKey(moduleRouter)),
 
             errorMsg: '',
 
             indexPage: '',
-
         }),
         [state, setState] = useState(initState),
-        dispatch = props.dispatch,
-        history = useHistory();
+        dispatch = props.dispatch;
+
 
     /*
         获取用户信息，也可以充当判断用户是否登录
     */
     const validate = () => {
-        let t = setTimeout(() => {
-            clearTimeout(t);
+        Promise.resolve().then(response => {
+            let userInfo = response?.data || {},
+                purview = userInfo?.modules || [],
+                indexPage = purview[0] || ACCOUNT;
 
-            rtDb.getUserInfo().then(response => {
-                let userInfo = response?.data || {},
-                    purview = userInfo?.modules || [],
-                    indexPage = purview[0] || ACCOUNT;
+            setState(o => ({
+                ...o,
+                loading: false,
+                purview,
+                userInfo,
+                indexPage,
+            }));
 
-                setState(o => ({
-                    ...o,
-                    loading: false,
-                    purview,
-                    userInfo: {
-                        ...userInfo,
-                        avatar:'/images/logo_150.png',
-                    },
-                    indexPage,
-                }));
-
-                // 记录用户信息
-                dispatch({
-                    type: SET_USER_INFO,
-                    value: {
-                        ...userInfo,
-                        avatar:'/images/logo_150.png',
-                    }
-                });
-                dispatch({
-                    type: SET_INDEX_PAGE,
-                    value: indexPage,
-                });
-            }).catch(e => {
-                setState(o => ({
-                    ...o,
-                    loading: false,
-                    purview: [],
-                    userInfo: {
-                        avatar:'/images/logo_150.png',
-                    },
-                    indexPage: LOGIN,
-                }));
+            // 记录用户信息
+            dispatch({
+                type: SET_USER_INFO,
+                value: userInfo,
             });
-        }, randomTime(200, 1200));
+            dispatch({
+                type: SET_INDEX_PAGE,
+                value: indexPage,
+            });
+        }).catch(e => {
+            setState(o => ({
+                ...o,
+                loading: false,
+                purview: [],
+                userInfo: {},
+                indexPage: LOGIN,
+            }));
+        });
     };
     // 这是入口文件，页面间切换不会触发，只有应用首次加载时才会触发
     useEffect(() => {
+        // 判断是否登录
         validate();
+
+        // 监听页面宽度变化
+        const resizeListen = (e) => {
+            dispatch && dispatch({
+                type: SET_GRID,
+                value: getGrid(),
+            })
+        };
+        window.addEventListener('resize', debounce(resizeListen, 200), false);
+
+        return () => {
+            window.removeEventListener('resize', debounce(resizeListen, 200), false);
+        }
     }, []);
     useEffect(() => {
         setState(o => ({...o, indexPage: props.indexPage}));
@@ -176,6 +161,7 @@ function App(props) {
                                 />
                             })
                         }
+
                         <Redirect from={HOME} to={state.indexPage} />
                     </CacheSwitch>
                 </LayoutLoader>

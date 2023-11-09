@@ -5,8 +5,6 @@ import request from '@/utils/request';
 // import { ADD_ROLE } from '@/config/url';
 import styles from './index.module.scss';
 
-import rtDb from '@/../DB';
-
 const layout = {
     labelCol: {
         span: 4,
@@ -56,7 +54,7 @@ export default (props) => {
         [form] = Form.useForm();
 
     const getUserList = async () => {
-        let response = await rtDb.getUserList();
+        let response = {code:0,data: [],message:'成功'};
 
         if(response?.code === 0) {
             let userList = response?.data || [];
@@ -73,7 +71,7 @@ export default (props) => {
         form.validateFields().then(values => {
             setState(o => ({...o, submitting: true}));
 
-            rtDb.addRole(values).then(response => {
+            Promise.resolve().then(response => {
                 setState(o => ({...o, submitting: false}));
 
                 if(0 === response?.code) {

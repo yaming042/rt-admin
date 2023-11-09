@@ -5,7 +5,7 @@ import { isEmail } from '@/utils';
 import FileUpload from '@/components/FileUpload';
 import styles from './index.module.scss';
 
-import rtDb from '@/../DB';
+
 import dayjs from "dayjs";
 
 const layout = {

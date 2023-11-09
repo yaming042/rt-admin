@@ -3,7 +3,6 @@ import { Form, Input, Select, Button, Radio, message } from "antd";
 import { isEmail } from '@/utils';
 import styles from './index.module.scss';
 
-import rtDb from '@/../DB';
 
 const layout = {
     labelCol: {
@@ -42,7 +41,7 @@ const UserForm = (props) => {
         form.validateFields().then(values => {
             setState(o => ({...o, submitting: true}));
 
-            rtDb.addUser(values).then(response => {
+            Promise.resolve().then(response => {
                 setState(o => ({...o, submitting: false}));
 
                 if(0 === response?.code) {

@@ -267,3 +267,21 @@ export const divideAndRound = (dividend, divisor, decimalPlaces=6) => {
 export const isEmail = (str='') => (/^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/).test(str);
 export const isMobile = (str='') => (/^((13[0-9])|(14[0-9])|(15([0-9]))|(16[0-9])|(17[0-9])|(18[0-9])|(19[0-9]))\d{8}$/).test(str);
 
+export const getGrid = () => {
+    let width = document.body.clientWidth,
+        grids = ['xs', 'sm', 'md', 'lg', 'xl', 'xxl'];
+
+    if(width >= 1600) {
+        return 'xxl';
+    }else if(width >= 1200) {
+        return 'xl';
+    }else if(width >= 992) {
+        return 'lg'
+    }else if(width >= 768) {
+        return 'md';
+    }else if(width >= 576) {
+        return 'sm';
+    }else{
+        return 'xs';
+    }
+};

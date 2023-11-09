@@ -6,8 +6,6 @@ import { deepCopy } from '@/utils';
 import CommonTree from '@/components/Tree';
 import styles from './index.module.scss';
 
-import rtDb from '@/../DB';
-
 export default () => {
     const initState = () => ({
         moduleLoading: false,
@@ -41,7 +39,7 @@ export default () => {
     // 获取权限列表
     const queryModuleList = async (currentId='') => {
         let currentObj = {};
-        let response = await rtDb.getModuleList();
+        let response = {code:0,data: [],message:'成功'};
 
         if(response?.code === 0) {
             let moduleList = response?.data || [];
@@ -59,7 +57,7 @@ export default () => {
     };
     // 获取角色列表
     const queryRoleList = async () => {
-        let response = await rtDb.getRoleList();
+        let response = {code:0,data: [],message:'成功'};
 
         setState(o => ({...o, roleList: response?.data || []}));
     };
@@ -86,7 +84,7 @@ export default () => {
             let t = setTimeout(() => {
                 clearTimeout(t);
 
-                rtDb.deleteModule(row.id).then(() => {
+                Promise.resolve().then(() => {
                     // 删除了选中的那项，那么就重置当前选中项
                     if(row.id === currentItem?.id) resetCurrentItem();
                     // 请求权限

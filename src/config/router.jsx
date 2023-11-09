@@ -4,14 +4,18 @@ import loadable from '@loadable/component';
 import Loading from '@/components/Loading';
 import * as URL from './url';
 import { mapMenuAddKey } from '@/utils';
-
-import TinyLayout from '@/layout/TinyLayout';
+import MenuIcon from '@/assets/project.svg?react'
 
 const Login = loadable(() => import('@/pages/Login'), { fallback: <Loading/> });
 const NotFound = loadable(() => import('@/pages/NotFound'), { fallback: <Loading/> });
 const Forbidden = loadable(() => import('@/pages/Forbidden'), { fallback: <Loading/> });
 
 const Overview = loadable(() => import('@/pages/Overview'), { fallback: <Loading/> });
+
+const ProjectManage = loadable(() => import('@/pages/ProjectList'), { fallback: <Loading/> });
+const LineManage = loadable(() => import('@/pages/LineList'), { fallback: <Loading/> });
+const ProjectLine = loadable(() => import('@/pages/ProjectLine'), { fallback: <Loading/> });
+const LineDetail = loadable(() => import('@/pages/LineDetail'), { fallback: <Loading/> });
 
 const RoleList = loadable(() => import('@/pages/RoleList'), { fallback: <Loading/> });
 const UserList = loadable(() => import('@/pages/UserList'), { fallback: <Loading/> });
@@ -60,6 +64,13 @@ const baseRouters = [
         component: Forbidden,
         showInMenu: false,
     },
+    {
+        url: URL.ACCOUNT,
+        icon: '',
+        label: '账户中心',
+        component: Account,
+        showInMenu: false,
+    },
 ];
 
 // 这些路由需要登录 且 有权限才能访问
@@ -69,38 +80,60 @@ const moduleRouters = [
         icon: '',
         label: '欢迎页',
         component: Overview,
-        showInMenu: true,
+        showInMenu: false,
+    },
+    {
+        url: URL.PROJECT_MANAGE,
+        icon: <MenuIcon/>,
+        label: '项目管理',
+        component: ProjectManage,
+        children: [
+            {
+                url: URL.PROJECT_LINE_MANAGE,
+                icon: '',
+                label: '项目线路',
+                component: ProjectLine,
+                showInMenu: false,
+                auth: [],
+            },
+        ],
+        auth: [],
+    },
+    {
+        url: URL.LINE_MANAGE,
+        icon: <MenuIcon/>,
+        label: '线路管理',
+        component: LineManage,
+        auth: [],
+    },
+    {
+        url: URL.LINE_DETAIL,
+        icon: '',
+        label: '线路详情',
+        component: LineDetail,
+        showInMenu: false,
+        auth: [],
     },
     {
         url: URL.USER_LIST,
-        icon: '',
+        icon: <MenuIcon/>,
         label: '用户列表',
         component: UserList,
+        auth: [],
     },
     {
         url: URL.ROLE_LIST,
-        icon: '',
+        icon: <MenuIcon/>,
         label: '角色列表',
         component: RoleList,
+        auth: [],
     },
     {
         url: URL.AUTH_LIST,
-        icon: '',
+        icon: <MenuIcon/>,
         label: '权限列表',
         component: ModuleList,
-    },
-    {
-        key: 'sys',
-        icon: '',
-        label: '系统设置',
-        children: [
-            {
-                url: URL.ACCOUNT,
-                icon: '',
-                label: '账户中心',
-                component: Account,
-            },
-        ]
+        auth: [],
     },
 ];
 

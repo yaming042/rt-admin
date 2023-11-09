@@ -8,8 +8,6 @@ import { SET_USER_INFO, SET_INDEX_PAGE } from '@/utils/constant';
 import Cookies from "js-cookie";
 import styles from './index.module.scss';
 
-import rtDb from '@/../DB';
-
 const Login = (props) => {
     const initState = () => ({
             submitting: false,
@@ -18,12 +16,6 @@ const Login = (props) => {
         [state, setState] = useState(initState),
         history = useHistory();
 
-    // 临时注册
-    const tempReg = () => {
-        rtDb.addUser({username:'tom', name: '汤姆', email: 'tom@test.com', status: 1}).then(r => {
-            message.success(`添加成功，立即登录`);
-        });
-    };
     /*
         获取用户信息，也可以充当判断用户是否登录
     */
@@ -32,7 +24,7 @@ const Login = (props) => {
             let t = setTimeout(() => {
                 clearTimeout(t);
 
-                resolve(rtDb.getUserInfo());
+                resolve({code:0,data:{name:'汤姆'},message:'成功'});
             }, 1200);
         });
     };
@@ -44,7 +36,7 @@ const Login = (props) => {
             let t = setTimeout(() => {
                 clearTimeout(t);
 
-                resolve(rtDb.login(values));
+                resolve({code:0,data:1,message:'成功'});
             }, 1200);
         });
     };
@@ -123,18 +115,13 @@ const Login = (props) => {
                 <Input
                     prefix={<LockOutlined className="site-form-item-icon" />}
                     type="password"
-                    placeholder="请输入密码（默认密码: 123456）"
+                    placeholder="请输入密码"
                 />
             </Form.Item>
             <Form.Item>
                 <Button loading={state.submitting} disabled={state.submitting || state.success} type="primary" htmlType="submit" className="login-form-button" block>登录</Button>
             </Form.Item>
 
-            <div className={styles['temp-div']}>
-                <Tooltip title="首次使用本地没有用户数据，可点击插入一条后继续登录【用户名: tom，密码: 123456】，这里是临时代码！">
-                    <span onClick={tempReg}>注册</span>
-                </Tooltip>
-            </div>
         </Form>
     );
 }
