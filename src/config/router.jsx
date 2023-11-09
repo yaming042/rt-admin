@@ -1,26 +1,27 @@
 // 这里没用React.lazy，是因为它没法配合vite的热加载动态更新组件，所以替换成 '@loadable/component'，它可以
 // import {lazy} from 'react';
 import loadable from '@loadable/component';
+import pMinDelay from 'p-min-delay'
 import Loading from '@/components/Loading';
 import * as URL from './url';
 import { mapMenuAddKey } from '@/utils';
 import MenuIcon from '@/assets/project.svg?react'
 
-const Login = loadable(() => import('@/pages/Login'), { fallback: <Loading/> });
-const NotFound = loadable(() => import('@/pages/NotFound'), { fallback: <Loading/> });
-const Forbidden = loadable(() => import('@/pages/Forbidden'), { fallback: <Loading/> });
+const Login = loadable(() => pMinDelay(import('@/pages/Login'), 500), { fallback: <Loading/> });
+const NotFound = loadable(() => pMinDelay(import('@/pages/NotFound'), 500), { fallback: <Loading/> });
+const Forbidden = loadable(() => pMinDelay(import('@/pages/Forbidden'), 500), { fallback: <Loading/> });
 
-const Overview = loadable(() => import('@/pages/Overview'), { fallback: <Loading/> });
+const Overview = loadable(() => pMinDelay(import('@/pages/Overview'), 500), { fallback: <Loading/> });
 
-const ProjectManage = loadable(() => import('@/pages/ProjectList'), { fallback: <Loading/> });
-const LineManage = loadable(() => import('@/pages/LineList'), { fallback: <Loading/> });
-const ProjectLine = loadable(() => import('@/pages/ProjectLine'), { fallback: <Loading/> });
-const LineDetail = loadable(() => import('@/pages/LineDetail'), { fallback: <Loading/> });
+const ProjectManage = loadable(() => pMinDelay(import('@/pages/ProjectList'), 500), { fallback: <Loading/> });
+const LineManage = loadable(() => pMinDelay(import('@/pages/LineList'), 500), { fallback: <Loading/> });
+const ProjectLine = loadable(() => pMinDelay(import('@/pages/ProjectLine'), 500), { fallback: <Loading/> });
+const LineDetail = loadable(() => pMinDelay(import('@/pages/LineDetail'), 500), { fallback: <Loading/> });
 
-const RoleList = loadable(() => import('@/pages/RoleList'), { fallback: <Loading/> });
-const UserList = loadable(() => import('@/pages/UserList'), { fallback: <Loading/> });
-const ModuleList = loadable(() => import('@/pages/ModuleList'), { fallback: <Loading/> });
-const Account = loadable(() => import('@/pages/Account'), { fallback: <Loading/> });
+const RoleList = loadable(() => pMinDelay(import('@/pages/RoleList'), 500), { fallback: <Loading/> });
+const UserList = loadable(() => pMinDelay(import('@/pages/UserList'), 500), { fallback: <Loading/> });
+const ModuleList = loadable(() => pMinDelay(import('@/pages/ModuleList'), 500), { fallback: <Loading/> });
+const Account = loadable(() => pMinDelay(import('@/pages/Account'), 500), { fallback: <Loading/> });
 
 
 /*

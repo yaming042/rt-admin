@@ -7,9 +7,7 @@ export default (props) => {
 
     return (
         <div className={`${styles['container']} ${styles[position]}`}>
-            <Spin tip={tip} size="large">
-                <div className="loading"></div>
-            </Spin>
+            <div className="rt-loader-1"></div>
         </div>
     );
 }

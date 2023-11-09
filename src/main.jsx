@@ -12,6 +12,7 @@ dayjs.locale('zh-cn'); // 全局使用简体中文
 
 import App from './App';
 import './index.css';
+import './loading.css';
 
 
 
